@@ -1,8 +1,48 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useCallback } from "react";
+
 const page = () => {
   const sizes = ["sx", "s", "m", "l", "xl"];
-  const colors = ["White", "Black", "Gray"];
+  const colors = ["White", "Black&White", "Gray"];
+  const searchParams = useSearchParams();
+
+
+  //definere vores konstanter, altså vores størrelse og farve:
+  const selectedSize = searchParams.get("size");
+  const selectedColor = searchParams.get("color");
+ // HVIS vi ikke har valgt noget, så returner vi en knap med tekst og active til false.
+  const btnState = () => {
+    if (!selectedSize) return { text: "Choose Size", active: false };
+    if (!selectedColor) return { text: "Choose Color", active: false };
+    return { text: "Add to Cart", active: true };
+  };
+  // Vi bruger useCallback for at sikre, at funktionen kun opdateres, når searchParams ændres.
+  const getBtnState = btnState(); 
+
+  // Knappen interaktion med brugeren og opdatere URL'en 
+
+  
+  
+  const createQueryString = useCallback(
+    (name, value) => {
+      const params = new URLSearchParams(searchParams)
+      params.set(name, value)
+ 
+      return params.toString()
+    },
+    [searchParams]
+  );
+  // Når brugeren klikker på en størrelse eller farve, vil createQueryString opdatere URL'en med den valgte værdi, 
+  // samtidig med at andre eksisterende parametre
+  // (f.eks. tidligere valgte størrelse eller farve) bevares i URL'en.
+
+  //useSearchParams gør det nemt at læse de aktuelle query parametre fra URL'en.
+  // createQueryString sørger for, at de nye parametre 
+  //tilføjes uden at overskrive de eksisterende.
+
   return (
     <main className="flex-1">
       <section className="mx-auto grid max-w-7xl p-8">
@@ -32,8 +72,8 @@ const page = () => {
                     return (
                       <Link
                         key={index}
-                        className="border-neutral-200 text-neutral-900 hover:bg-neutral-100 relative flex min-w-[5ch] items-center justify-center rounded border p-3 text-center text-sm font-semibold"
-                        href="#"
+                        className={`${searchParams.get ('size') === size && "bg-neutral-100" } border-neutral-200 text-neutral-900 hover:bg-neutral-100 relative flex min-w-[5ch] items-center justify-center rounded border p-3 text-center text-sm font-semibold`}
+                        href={`?${createQueryString("size", size)}`}
                       >
                         {size}
                       </Link>
@@ -48,8 +88,8 @@ const page = () => {
                     return (
                       <Link
                         key={index}
-                        className="border-neutral-200 text-neutral-900 hover:bg-neutral-100 relative flex min-w-[5ch] items-center justify-center rounded border p-3 text-center text-sm font-semibold"
-                        href="#"
+                        className={`${searchParams.get ('color') === color && "big-neutral-100"} border-neutral-200 text-neutral-900 hover:bg-neutral-100 relative flex min-w-[5ch] items-center justify-center rounded border p-3 text-center text-sm font-semibold`}
+                        href={`?${createQueryString("color", color)}`}
                       >
                         {color}
                       </Link>
@@ -58,12 +98,27 @@ const page = () => {
                 </div>
               </fieldset>
               <div className="mt-8">
-                <button
-                  type="submit"
-                  className="h-12 items-center rounded-md bg-neutral-900 px-6 py-3 text-base font-medium leading-6 text-white shadow hover:bg-neutral-800"
-                >
-                  <span>Add to cart</span>
-                </button>
+                {/* Hvis vi har valgt en størrelse og en farve, så viser vi en knap med tekst og active til true. */}
+                {/* Hvis vi ikke har valgt en størrelse eller en farve, så viser vi en knap med tekst og active til false. */}
+                {/*Her laver jeg en boolean, som siger om vi har valgt en størrelse og en farve. */}
+              {getBtnState.active ? (
+                  <Link
+                    href={`/payment?${new URLSearchParams({
+                      size: selectedSize,
+                      color: selectedColor,
+                    }).toString()}`}
+                    className="h-12 flex items-center justify-center rounded-md bg-neutral-900 px-6 py-3 text-base font-medium leading-6 text-white shadow hover:bg-neutral-800"
+                  >
+                    {getBtnState.text}
+                  </Link>
+                ) : (
+                  <button
+                    disabled
+                    className="h-12 flex items-center justify-center rounded-md bg-gray-300 px-6 py-3 text-base font-medium leading-6 text-white shadow cursor-not-allowed"
+                  >
+                    {getBtnState.text}
+                  </button>
+                )}
               </div>
               <div className="mt-8 space-y-6 text-sm text-neutral-500">
                 <div>

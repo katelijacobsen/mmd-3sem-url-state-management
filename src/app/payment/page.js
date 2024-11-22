@@ -1,5 +1,13 @@
 import Image from "next/image";
-const page = () => {
+import {use} from "react";
+const page = async ({searchParams}) => {
+  //const  queryParams = await searchParams;
+  //const {size, color} = await searchParams;
+
+  const { color, size } = await searchParams;
+
+  //const { color, size } = use(searchParams);
+
   return (
     <main className="flex-1">
       <section className="mx-auto max-w-7xl p-8">
@@ -26,11 +34,11 @@ const page = () => {
                 <div className="flex justify-between justify-items-start gap-4">
                   <div>
                     <h2 className="font-medium text-neutral-700">Size:</h2>
-                    <p className="text-sm text-neutral-500">M</p>
+                    <p className="text-sm text-neutral-500">{searchParams.size}</p>
                     <h2 className="mt-1 font-medium text-neutral-700">
                       Color:
                     </h2>
-                    <p className="text-sm text-neutral-500">Black</p>
+                    <p className="text-sm text-neutral-500">{searchParams.color}</p>
                   </div>
                   <p className="text-right font-semibold text-neutral-900">
                     kr. 90.00
