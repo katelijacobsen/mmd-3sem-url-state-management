@@ -9,39 +9,26 @@ const page = () => {
   const colors = ["White", "Black&White", "Gray"];
   const searchParams = useSearchParams();
 
-
-  //definere vores konstanter, altså vores størrelse og farve:
   const selectedSize = searchParams.get("size");
   const selectedColor = searchParams.get("color");
- // HVIS vi ikke har valgt noget, så returner vi en knap med tekst og active til false.
+  const selectedQuantity = searchParams.get("quantity") || "1"; // Default quantity is 1
+
   const btnState = () => {
     if (!selectedSize) return { text: "Choose Size", active: false };
     if (!selectedColor) return { text: "Choose Color", active: false };
     return { text: "Add to Cart", active: true };
   };
-  // Vi bruger useCallback for at sikre, at funktionen kun opdateres, når searchParams ændres.
-  const getBtnState = btnState(); 
 
-  // Knappen interaktion med brugeren og opdatere URL'en 
+  const getBtnState = btnState();
 
-  
-  
   const createQueryString = useCallback(
     (name, value) => {
-      const params = new URLSearchParams(searchParams)
-      params.set(name, value)
- 
-      return params.toString()
+      const params = new URLSearchParams(searchParams);
+      params.set(name, value);
+      return params.toString();
     },
     [searchParams]
   );
-  // Når brugeren klikker på en størrelse eller farve, vil createQueryString opdatere URL'en med den valgte værdi, 
-  // samtidig med at andre eksisterende parametre
-  // (f.eks. tidligere valgte størrelse eller farve) bevares i URL'en.
-
-  //useSearchParams gør det nemt at læse de aktuelle query parametre fra URL'en.
-  // createQueryString sørger for, at de nye parametre 
-  //tilføjes uden at overskrive de eksisterende.
 
   return (
     <main className="flex-1">
@@ -68,44 +55,56 @@ const page = () => {
               <fieldset className="my-4">
                 <legend className="sr-only">Sizes</legend>
                 <div className="flex flex-wrap gap-3">
-                  {sizes.map((size, index) => {
-                    return (
-                      <Link
-                        key={index}
-                        className={`${searchParams.get ('size') === size && "bg-neutral-100" } border-neutral-200 text-neutral-900 hover:bg-neutral-100 relative flex min-w-[5ch] items-center justify-center rounded border p-3 text-center text-sm font-semibold`}
-                        href={`?${createQueryString("size", size)}`}
-                      >
-                        {size}
-                      </Link>
-                    );
-                  })}
+                  {sizes.map((size, index) => (
+                    <Link
+                      key={index}
+                      className={`${searchParams.get("size") === size && "bg-neutral-100"} border-neutral-200 text-neutral-900 hover:bg-neutral-100 relative flex min-w-[5ch] items-center justify-center rounded border p-3 text-center text-sm font-semibold`}
+                      href={`?${createQueryString("size", size)}`}
+                    >
+                      {size}
+                    </Link>
+                  ))}
                 </div>
               </fieldset>
               <fieldset className="my-4">
                 <legend className="sr-only">Colors</legend>
                 <div className="flex flex-wrap gap-3">
-                  {colors.map((color, index) => {
-                    return (
-                      <Link
-                        key={index}
-                        className={`${searchParams.get ('color') === color && "big-neutral-100"} border-neutral-200 text-neutral-900 hover:bg-neutral-100 relative flex min-w-[5ch] items-center justify-center rounded border p-3 text-center text-sm font-semibold`}
-                        href={`?${createQueryString("color", color)}`}
-                      >
-                        {color}
-                      </Link>
-                    );
-                  })}
+                  {colors.map((color, index) => (
+                    <Link
+                      key={index}
+                      className={`${searchParams.get("color") === color && "bg-neutral-100"} border-neutral-200 text-neutral-900 hover:bg-neutral-100 relative flex min-w-[5ch] items-center justify-center rounded border p-3 text-center text-sm font-semibold`}
+                      href={`?${createQueryString("color", color)}`}
+                    >
+                      {color}
+                    </Link>
+                  ))}
                 </div>
               </fieldset>
+              <div className="my-4">
+                <label className="block text-sm font-medium text-neutral-900">
+                  Quantity
+                </label>
+                <select
+                  value={selectedQuantity}
+                  onChange={(e) =>
+                    window.location.href = `?${createQueryString("quantity", e.target.value)}`
+                  }
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                >
+                  {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
+                    <option key={num} value={num}>
+                      {num}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div className="mt-8">
-                {/* Hvis vi har valgt en størrelse og en farve, så viser vi en knap med tekst og active til true. */}
-                {/* Hvis vi ikke har valgt en størrelse eller en farve, så viser vi en knap med tekst og active til false. */}
-                {/*Her laver jeg en boolean, som siger om vi har valgt en størrelse og en farve. */}
-              {getBtnState.active ? (
+                {getBtnState.active ? (
                   <Link
                     href={`/payment?${new URLSearchParams({
                       size: selectedSize,
                       color: selectedColor,
+                      quantity: selectedQuantity,
                     }).toString()}`}
                     className="h-12 flex items-center justify-center rounded-md bg-neutral-900 px-6 py-3 text-base font-medium leading-6 text-white shadow hover:bg-neutral-800"
                   >
@@ -119,15 +118,6 @@ const page = () => {
                     {getBtnState.text}
                   </button>
                 )}
-              </div>
-              <div className="mt-8 space-y-6 text-sm text-neutral-500">
-                <div>
-                  <p>
-                    <b>Step into summer with the right balance.</b>&nbsp;Every
-                    time your head goes down, you see these beauties, and your
-                    mood bounces right back up.
-                  </p>
-                </div>
               </div>
             </div>
           </div>
